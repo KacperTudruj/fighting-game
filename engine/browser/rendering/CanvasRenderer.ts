@@ -20,7 +20,15 @@ export class CanvasRenderer implements Renderer {
     }
 
     render(): void {
-        // Implementation for rendering on the canvas
+        const context = this.canvas.getContext("2d");
+
+        console.log("Test");
+        if (!context) {
+            throw new Error("Canvas context is not available");
+        }
+
+        context.fillStyle = "red";
+        context.fillRect(100, 100, 100, 100);
     }
 
 }

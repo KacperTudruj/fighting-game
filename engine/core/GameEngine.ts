@@ -12,7 +12,15 @@ export class GameEngine {
     start(): void {
         console.log('Engine started');
 
-        this.renderer.clear();
         this.gameLoop.start();
+    }
+
+    update(): void {
+        console.log("Engine update");
+    }
+    
+    render(): void {
+        this.renderer.clear();
+        this.renderer.render();
     }
 }

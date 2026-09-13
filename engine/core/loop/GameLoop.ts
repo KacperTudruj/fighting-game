@@ -5,8 +5,6 @@ export class GameLoop {
     constructor(private readonly callbacks: GameLoopCallbacks) {}
 
     start(): void {
-        console.log("Game loop started");
-
         const loop = () => {
             this.callbacks.update();
             this.callbacks.render();            
@@ -14,8 +12,6 @@ export class GameLoop {
             requestAnimationFrame(loop);
         };
 
-        requestAnimationFrame(() => {
-            loop();
-        });
+        requestAnimationFrame(loop);
     }
 }
