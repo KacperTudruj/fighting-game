@@ -1,10 +1,15 @@
+import { GameLoopCallbacks } from "./GameLoopCallbacks";
+
 export class GameLoop {
+
+    constructor(private readonly callbacks: GameLoopCallbacks) {}
+
     start(): void {
         console.log("Game loop started");
 
         const loop = () => {
-            this.update();
-            this.render();            
+            this.callbacks.update();
+            this.callbacks.render();            
             
             requestAnimationFrame(loop);
         };
@@ -13,12 +18,4 @@ export class GameLoop {
             loop();
         });
     }
-
-    private update(): void {
-        console.log("Update");
-    }
-    private render(): void {
-        console.log("Render");
-    }
-
 }

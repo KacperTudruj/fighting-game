@@ -1,13 +1,12 @@
 import { Renderer } from "../rendering/Renderer";
-import { GameLoop } from "./GameLoop";
+import { GameLoop } from "./loop/GameLoop";
 
 export class GameEngine {
-    private readonly gameLoop: GameLoop;
 
     constructor(
         private readonly renderer: Renderer,
+        private readonly gameLoop: GameLoop,
     ) {
-        this.gameLoop = new GameLoop();
     }
 
     start(): void {

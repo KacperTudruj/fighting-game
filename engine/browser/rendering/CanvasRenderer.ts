@@ -1,4 +1,4 @@
-import { Renderer } from "./Renderer";
+import { Renderer } from "../../rendering/Renderer";
 
 export class CanvasRenderer implements Renderer {
 
