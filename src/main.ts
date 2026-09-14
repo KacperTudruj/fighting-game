@@ -10,13 +10,10 @@ canvas.height = 720;
 document.body.appendChild(canvas);
 
 const renderer = new CanvasRenderer(canvas);
-const gameLoopRunner = new GameLoopRunner(renderer);
-const gameLoop = new GameLoop(gameLoopRunner);
 
-const engine = new GameEngine(
-    renderer,
-    gameLoop
-);
+const engine = new GameEngine(renderer);
+const gameLoop = new GameLoop(engine);
+const gameLoopRunner = new GameLoopRunner(gameLoop);
 
-const game = new Game(engine);
+const game = new Game(gameLoopRunner);
 game.start();

@@ -1,17 +1,16 @@
-import { GameLoopCallbacks } from "../../core/loop/GameLoopCallbacks";
-import { CanvasRenderer } from "../rendering/CanvasRenderer";
+import { GameLoop } from "../../core/loop/GameLoop";
 
-export class GameLoopRunner implements GameLoopCallbacks {
+export class GameLoopRunner {
     
-    constructor(private readonly renderer: CanvasRenderer) {}
+    constructor(private readonly gameLoop: GameLoop) {}
 
-    update(): void {
-        console.log("Update");        
-    }
+    start(): void {
+        const loop = () => {
+            this.gameLoop.tick();            
+            
+            requestAnimationFrame(loop);
+        };
 
-    render(): void {
-        console.log("Render");
-
-        this.renderer.render();
+        requestAnimationFrame(loop);
     }
 }

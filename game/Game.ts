@@ -1,11 +1,11 @@
-import { GameEngine } from "../engine/core/GameEngine";
+import { GameLoopRunner } from "../engine/browser/loop/GameLoopRunner";
 
 export class Game {
     constructor(
-        private readonly engine: GameEngine,
+        private readonly gameLoopRunner: GameLoopRunner
     ) {}
 
     start(): void {
-        this.engine.start();
+        this.gameLoopRunner.start();
     }
 }

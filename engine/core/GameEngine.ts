@@ -1,18 +1,11 @@
 import { Renderer } from "../rendering/Renderer";
-import { GameLoop } from "./loop/GameLoop";
+import { GameLoopCallbacks } from "./loop/GameLoopCallbacks";
 
-export class GameEngine {
+export class GameEngine implements GameLoopCallbacks {
 
     constructor(
         private readonly renderer: Renderer,
-        private readonly gameLoop: GameLoop,
     ) {
-    }
-
-    start(): void {
-        console.log('Engine started');
-
-        this.gameLoop.start();
     }
 
     update(): void {
