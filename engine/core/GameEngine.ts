@@ -10,8 +10,8 @@ export class GameEngine implements GameLoopCallbacks {
     ) {
     }
 
-    update(_deltaTimeSeconds: number): void {
-        console.log("Engine update");
+    update(deltaTimeSeconds: number): void {
+        this.fighter.update(deltaTimeSeconds);
     }
     
     render(): void {
