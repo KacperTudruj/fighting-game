@@ -1,4 +1,4 @@
 export interface GameLoopCallbacks {
-    update(): void;
+    update(deltaTimeSeconds: number): void;
     render(): void;
 }

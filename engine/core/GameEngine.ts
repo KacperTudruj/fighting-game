@@ -8,7 +8,7 @@ export class GameEngine implements GameLoopCallbacks {
     ) {
     }
 
-    update(): void {
+    update(_deltaTimeSeconds: number): void {
         console.log("Engine update");
     }
     
