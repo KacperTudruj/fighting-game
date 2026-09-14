@@ -1,3 +1,4 @@
+import { Fighter } from "../../combat/Fighter";
 import { Renderer } from "../../rendering/Renderer";
 
 export class CanvasRenderer implements Renderer {
@@ -19,7 +20,7 @@ export class CanvasRenderer implements Renderer {
         );
     }
 
-    render(): void {
+    render(fighter: Readonly<Fighter>): void {
         const context = this.canvas.getContext("2d");
 
         if (!context) {
@@ -27,9 +28,7 @@ export class CanvasRenderer implements Renderer {
         }
 
         context.fillStyle = "red";
-        context.fillRect(100, 100, 100, 100);
+        context.fillRect(fighter.x, fighter.y, 100, 100);
     }
 
 }
-
-    

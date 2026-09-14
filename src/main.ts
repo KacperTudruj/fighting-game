@@ -1,3 +1,4 @@
+import { Fighter } from "../engine/combat/Fighter";
 import { GameEngine } from "../engine/core/GameEngine";
 import { GameLoop } from "../engine/core/loop/GameLoop";
 import { GameLoopRunner } from "../engine/browser/loop/GameLoopRunner";
@@ -11,7 +12,8 @@ document.body.appendChild(canvas);
 
 const renderer = new CanvasRenderer(canvas);
 
-const engine = new GameEngine(renderer);
+const fighter = new Fighter(100, 100);
+const engine = new GameEngine(renderer, fighter);
 const gameLoop = new GameLoop(engine);
 const gameLoopRunner = new GameLoopRunner(gameLoop);
 
