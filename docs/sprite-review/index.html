@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pl"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Przegląd sprite’ów v2</title>
+<style>
+body{font:16px system-ui;background:#171c26;color:#eef2ff;max-width:1000px;margin:32px auto;padding:0 20px}button,input{font:inherit}button{padding:8px 14px;margin-right:8px}section{display:flex;gap:24px;flex-wrap:wrap}canvas{background:#303848;border-bottom:3px solid #99a5bb;max-width:100%;height:auto}figure{margin:20px 0}img{max-height:440px;max-width:100%}small{display:block;color:#bac5d9;margin-top:12px}
+</style>
+<h1>JustRandomePlayer — przegląd cykli v2</h1>
+<p>Arkusze robocze. Oceń zamianę nóg, stałą skalę i przejście ostatniej klatki do pierwszej. Grafiki nie są jeszcze podłączone do gry.</p>
+<button id="pause">Pauza</button><button id="step">Następna klatka</button>
+<label>Klatki/s <input id="fps" type="range" min="2" max="24" value="12"> <output id="rate">12</output></label>
+<section><figure><figcaption>Chód <span id="walk-label"></span></figcaption><canvas id="walk" width="400" height="380"></canvas></figure><figure><figcaption>Bieg <span id="run-label"></span></figcaption><canvas id="run" width="400" height="380"></canvas></figure></section>
+<p id="status">Ładowanie arkuszy…</p>
+<h2>Neo — wzorzec sylwetki</h2>
+<img src="../../game/fighters/neo/reference-v1.png" alt="Neo w komiksowym stylu, w czarnym płaszczu i okularach">
+<small>Położenie stóp jest wyrównane na potrzeby przeglądu. Podgląd nie zmienia źródłowych PNG. Skala jest stała w obrębie klipu, więc różnice między pozami pozostają widoczne.</small>
+<script src="frames.js"></script>
+<script>
+const clips={}, fps=document.querySelector('#fps'); let paused=false, index=0, last=0;
+document.querySelector('#pause').onclick=()=>{paused=!paused;document.querySelector('#pause').textContent=paused?'Odtwórz':'Pauza';};
+document.querySelector('#step').onclick=()=>{paused=true;document.querySelector('#pause').textContent='Odtwórz';index++;draw();};
+fps.oninput=()=>document.querySelector('#rate').textContent=fps.value;
+function draw(){for(const [name,clip] of Object.entries(clips)){
+ const canvas=document.querySelector('#'+name), ctx=canvas.getContext('2d'), r=clip.frames[index%clip.frames.length];
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ const w=r[2]-r[0],h=r[3]-r[1], scale=280/clip.maxHeight;
+ ctx.drawImage(clip.image,r[0],r[1],w,h,200-w*scale/2,360-h*scale,w*scale,h*scale);
+ document.querySelector('#'+name+'-label').textContent=`${index%clip.frames.length+1}/${clip.frames.length}`;
+}}
+Promise.all(['walk','run'].map(name=>new Promise((resolve,reject)=>{
+ const image=new Image();image.onload=()=>{const frames=window.spriteFrames[name];clips[name]={image,frames,maxHeight:Math.max(...frames.map(r=>r[3]-r[1]))};resolve();};
+ image.onerror=reject;image.src=`../../game/fighters/just-randome-player/${name}-v2.png`;
+}))).then(()=>{document.querySelector('#status').textContent='Sprawdź najpierw powoli, następnie z docelową prędkością.';draw();requestAnimationFrame(tick);}).catch(()=>document.querySelector('#status').textContent='Nie udało się wczytać plików. Otwórz podgląd z repozytorium razem z folderem game.');
+function tick(time){if(!paused && time-last>=1000/Number(fps.value)){index++;last=time;draw();}requestAnimationFrame(tick);}
+</script></html>

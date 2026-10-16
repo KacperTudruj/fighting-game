@@ -182,3 +182,107 @@ Nowa nazwa animacji nadal wymaga logiki, która wybierze jej odtwarzanie.
 
 Przyszłe generacje nadal powinny stosować regularną siatkę z prompta.
 Obecna obsługa prostokątów pozwala też korzystać z atlasów nieregularnych.
+
+## Sprite'y v2 — korekta cykli i drugi zawodnik
+
+Ten rozdział jest aktualnym planem. Dotychczasowy arkusz v1 pozostaje
+w grze do osobnego zatwierdzenia integracji v2.
+
+### Zasady ruchu do następnej implementacji
+
+- Przód oznacza kierunek do przeciwnika, tył kierunek oddalania się.
+- Postać patrzy na przeciwnika również podczas cofania. Odbicie grafiki
+  następuje przy zmianie strony względem przeciwnika, nie od klawisza ruchu.
+- Dwukrotne naciśnięcie przodu uruchamia bieg, gdy drugie naciśnięcie jest
+  przytrzymane. Puszczenie klawisza kończy bieg. Docelowo zastępuje Shift.
+- Dwukrotne naciśnięcie tyłu uruchamia pojedynczy krótki odskok w tył.
+- Proponowane okno dwukliku: 12 kroków symulacji (200 ms), konfigurowalne.
+  Powtarzanie klawisza przez system nie jest drugim naciśnięciem.
+- Obaj zawodnicy korzystają ze swoich przypisań w `public/controls.txt`.
+  Konieczna będzie obsługa dwóch zawodników w symulacji i rendererze.
+- To specyfikacja przyszłej mechaniki. W tym kroku zmieniamy tylko grafikę
+  i dokumentację, bez podłączania drugiej postaci i nowych wejść.
+
+### Plan sekwencji
+
+| Sekwencja | Klatki docelowe | Odtwarzanie |
+| --- | ---: | --- |
+| idle | 8 | pętla oddechu w gardzie |
+| walkForward | 16 | pełen cykl obu nóg |
+| walkBackward | 12 | powolne cofanie w gardzie, twarz do przeciwnika |
+| runForward | 16 | pełen cykl, dwa kontakty i dwie fazy lotu |
+| backdash | 10 | wybicie, odskok, lądowanie; jednorazowo |
+| jump | 8 | wybicie i wznoszenie |
+| fall | 4 | opadanie |
+| land | 6 | kontakt, amortyzacja, powrót |
+| crouchEnter / crouchIdle | 6 / 4 | wejście jednorazowe / pętla |
+
+Liczby są planem artystycznym, nie ograniczeniem. Postacie i sekwencje
+mogą mieć różne długości i czasy klatek. Dodatkowe klatki muszą przedstawiać
+nowe fazy ruchu. Kopie podobnych póz nie rozwiązują problemu cyklu.
+
+### Wymagania chodu i biegu
+
+- Osobny PNG dla każdej sekwencji; 16 klatek w układzie 4 × 4.
+- Odczyt kolejno wierszami: 0–15. Cały arkusz to JEDEN pełen cykl.
+- W pierwszej połowie bliższa noga przechodzi od kontaktu z przodu do tyłu.
+  W drugiej połowie role nóg zamieniają się. Dalsze kończyny są ciemniejsze.
+- Chód zawiera kontakt pięty, obciążenie, przejście nóg i uniesienie.
+- Bieg zawiera kontakt, kompresję, wybicie, lot i powrót nogi.
+- Ramiona pracują przeciwnie do nóg; brak efektu stale wysuniętej jednej nogi.
+- Ta sama skala głowy, ubrania, kamera i punkt odniesienia sylwetki.
+- Preferowana siatka 1536 × 1536, komórka 384 × 384; trzeba sprawdzić
+  rzeczywisty plik. Gdy generator nie zachowa siatki, opisać osobne prostokąty.
+- Podgląd odtwarza klatki i pozwala ocenić przejście ostatnia → pierwsza.
+  Widok arkusza nie zastępuje oceny w ruchu.
+
+### Neo — wzorzec drugiej postaci
+
+Neo z Matrixa: krótkie ciemne włosy, wąskie czarne okulary, twarz bez brody,
+czarny płaszcz z wysokim kołnierzem i rozciętymi połami do połowy łydki,
+czarne spodnie i buty. Spokojna garda sztuk walki, widok w prawo.
+Ta sama komiksowa kreska i proporcje co JustRandomePlayer.
+Bez broni. Osobno czytelne dłonie i nogi, płaszcz nie ukrywa całego ruchu.
+Na tym etapie generujemy jedną sylwetkę wzorcową, nie pełny zestaw animacji.
+
+### Prompty v2
+
+Pełne prompty faktycznie wysłane do wbudowanego ImageGen są zapisane
+w `docs/sprite-prompts-v2.md`. Referencją stylu i wyglądu JustRandomePlayer
+jest `game/fighters/just-randome-player/sprites-v1.png`.
+Dla Neo referencja określa tylko styl — nie tożsamość ani strój.
+
+### Wyniki i ocena v2
+
+Dostarczone pliki (wbudowany ImageGen, po jednej korekcie każdego cyklu):
+
+- `game/fighters/just-randome-player/walk-v2.png` — 16 póz, 1254 × 1254 RGBA.
+- `game/fighters/just-randome-player/run-v2.png` — 16 póz, 1254 × 1254 RGBA.
+- `game/fighters/neo/reference-v1.png` — jedna sylwetka, 1254 × 1254 RGBA.
+- `docs/sprite-review/index.html` — lokalny odtwarzacz obu sekwencji,
+  pauza, pojedyncze klatki i tempo 2–24 kl./s. Otwórz plik w przeglądarce;
+  podgląd nie wymaga zmiany gry ani przebudowania obrazu Docker.
+- `docs/sprite-review/frames.js` — prostokąty 16 sylwetek na arkusz,
+  ustalone przez analizę połączonych pikseli alfa >128. PNG nie modyfikowano.
+
+Kontrola: oba arkusze mają 16 głównych sylwetek; wszystkie trzy PNG
+mają kanał alfa z wartościami od 0 do 255. Sprawdzono składnię JS podglądu
+oraz poprawność zakresów prostokątów. Nie wykonano przeglądu animowanego
+w narzędziu przeglądarkowym; cykle wymagają oceny użytkownika w odtwarzaczu.
+
+**Status: materiały robocze do przeglądu, nie gotowe do integracji.**
+Generator nie spełnił w pełni żądania cykli mimo korekty:
+chód ma podobne pozy i wyraźnie mniejsze sylwetki w dolnym rzędzie
+(wysokość ok. 251–254 px wobec 317–329 px w górnych rzędach).
+Dwie dolne sylwetki dochodzą do dolnej krawędzi obrazu, więc nie można
+uznać ich marginesu za poprawny. Zamiana nóg w chodzie pozostaje nieczytelna.
+W biegu korekta wyraźniej rozróżnia przeciwne fazy nóg i ramion,
+ale część póz powtarza się i wymaga korekty rytmu i przejść.
+Sama liczba 16 klatek nie potwierdza płynności.
+
+Dalsza praca artystyczna powinna skupić się na kilku jednoznacznych pozach
+kluczowych obu kontaktów i przejścia nóg, następnie klatkach pośrednich;
+nie na ponownym zwiększaniu liczby podobnych póz. Poprawki muszą utrzymać
+stałą skalę i zapewnić margines pod stopami. Dopiero po akceptacji cykli
+podłączymy je oraz wygenerujemy cofanie i odskok. Neo na tym etapie jest
+wzorcem wyglądu, bez kodu postaci i bez animacji.
