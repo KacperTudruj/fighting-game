@@ -20,6 +20,13 @@ SVG jest tylko prostym przykładowym arkuszem; PNG działa tak samo.
 Zachowaj tę samą pozycję stóp w każdej klatce, aby postać nie skakała.
 Pozycja zawodnika oznacza lewy górny róg klatki.
 
-Obecne demo porusza postać automatycznie w prawo. `walkSpeed: 0`
-pozwala obejrzeć animację stania. Sterowanie i granice areny
-pozostają osobnym etapem.
+Demo korzysta z klawiszy gracza 1 z `public/controls.txt` (domyślnie A/D).
+Klawisze zapisujemy jako `KeyboardEvent.code`, np. `KeyJ`, `KeyL`.
+Plik zawiera też ustawienia gracza 2, przygotowane na kolejny etap.
+Po zmianie pliku odśwież stronę; w Dockerze najpierw wykonaj
+`docker compose up -d --build`. Niepoprawna konfiguracja zatrzymuje start
+gry z komunikatem; szczegóły są w konsoli przeglądarki.
+
+Postać spada na podłogę i zatrzymuje się przy obu brzegach areny.
+Wymiary areny i grawitację określa `game/arena.ts`.
+Granice fizyczne są obecnie prostokątem całej klatki sprite'a.

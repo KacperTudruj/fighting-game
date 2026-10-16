@@ -1,0 +1,7 @@
+# Klawisze w formacie KeyboardEvent.code: KeyA, KeyD, ArrowLeft, ArrowRight itd.
+# Zmien ten plik i odswiez strone. W Dockerze po zmianie przebuduj obraz.
+# Obecne demo korzysta z player1. player2 jest konfiguracja dla drugiego gracza.
+player1.left=KeyA
+player1.right=KeyD
+player2.left=ArrowLeft
+player2.right=ArrowRight

@@ -41,17 +41,21 @@ export class CanvasRenderer implements Renderer {
         if (!image) return;
 
         context.imageSmoothingEnabled = false;
+        context.save();
+        context.translate(fighter.x + (fighter.facing === -1 ? fighter.width : 0), fighter.y);
+        context.scale(fighter.facing, 1);
         context.drawImage(
             image,
             (fighter.spriteFrame % sprite.columns) * sprite.frameWidth,
             Math.floor(fighter.spriteFrame / sprite.columns) * sprite.frameHeight,
             sprite.frameWidth,
             sprite.frameHeight,
-            fighter.x,
-            fighter.y,
+            0,
+            0,
             sprite.frameWidth * sprite.scale,
             sprite.frameHeight * sprite.scale,
         );
+        context.restore();
     }
 
 }

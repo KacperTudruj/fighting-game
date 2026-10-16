@@ -5,6 +5,9 @@ import { GameLoopRunner } from "../engine/browser/loop/GameLoopRunner";
 import { CanvasRenderer } from "../engine/browser/rendering/CanvasRenderer";
 import { Game } from "../game/Game";
 import { trainingFighter } from "../game/fighters/training/definition";
+import { KeyboardInputProvider } from "../engine/browser/input/KeyboardInputProvider";
+import { parseControls } from "../game/input/Controls";
+import { arena } from "../game/arena";
 
 const canvas = document.createElement("canvas");
 canvas.width = 1280;
@@ -14,17 +17,24 @@ document.body.appendChild(canvas);
 const renderer = new CanvasRenderer(canvas);
 
 const fighter = new Fighter(100, 100, trainingFighter);
-const engine = new GameEngine(renderer, fighter);
-const gameLoop = new GameLoop(engine);
-const gameLoopRunner = new GameLoopRunner(gameLoop);
+canvas.style.background = `linear-gradient(to bottom, #222 0px, #222 ${arena.floorY}px, #475569 ${arena.floorY}px, #475569 100%)`;
 
-const game = new Game(gameLoopRunner);
-renderer.loadSprite(trainingFighter.sprite.source)
-    .then(() => game.start())
+async function start(): Promise<void> {
+    const response = await fetch(`${import.meta.env.BASE_URL}controls.txt`, { cache: "no-store" });
+    if (!response.ok) throw new Error("Nie udało się wczytać controls.txt");
+    const controls = parseControls(await response.text());
+    await renderer.loadSprite(trainingFighter.sprite.source);
+    const input = new KeyboardInputProvider(controls.player1);
+    const engine = new GameEngine(renderer, fighter, input, arena);
+    const game = new Game(new GameLoopRunner(new GameLoop(engine)));
+    game.start();
+}
+
+start()
     .catch((error: unknown) => {
-        console.error("Nie udało się wczytać sprite'a postaci", error);
+        console.error("Nie udało się uruchomić gry", error);
         const message = document.createElement("p");
-        message.textContent = "Nie udało się wczytać postaci. Odśwież stronę, aby spróbować ponownie.";
+        message.textContent = "Nie udało się uruchomić gry. Sprawdź controls.txt i dostępność grafiki; szczegóły w konsoli.";
         message.style.color = "white";
         canvas.replaceWith(message);
     });
