@@ -1,3 +1,4 @@
+import { neo } from '../game/fighters/neo/definition';
 import { Fighter } from "../engine/combat/Fighter";
 import { GameEngine } from "../engine/core/GameEngine";
 import { GameLoop } from "../engine/core/loop/GameLoop";
@@ -16,16 +17,21 @@ document.body.appendChild(canvas);
 
 const renderer = new CanvasRenderer(canvas);
 
-const fighter = new Fighter(100, 100, justRandomePlayer);
+const fighter = new Fighter(320, arena.floorY, justRandomePlayer);
+const opponent = new Fighter(960, arena.floorY, neo);
+fighter.grounded = opponent.grounded = true;
 canvas.style.background = `linear-gradient(to bottom, #222 0px, #222 ${arena.floorY}px, #475569 ${arena.floorY}px, #475569 100%)`;
 
 async function start(): Promise<void> {
     const response = await fetch(`${import.meta.env.BASE_URL}controls.txt`, { cache: "no-store" });
     if (!response.ok) throw new Error("Nie udało się wczytać controls.txt");
     const controls = parseControls(await response.text());
-    await renderer.loadSprite(justRandomePlayer.sprite.source);
+    const definitions = [justRandomePlayer, neo];
+    const sources = new Set(definitions.flatMap(def => [def.sprite.source, ...def.sprite.frames.map(frame => frame.source ?? def.sprite.source)]));
+    await Promise.all([...sources].map(source => renderer.loadSprite(source)));
     const input = new KeyboardInputProvider(controls.player1);
-    const engine = new GameEngine(renderer, fighter, input, arena);
+    const input2 = new KeyboardInputProvider(controls.player2);
+    const engine = new GameEngine(renderer, [{fighter, input}, {fighter: opponent, input: input2}], arena);
     const game = new Game(new GameLoopRunner(new GameLoop(engine)));
     game.start();
 }

@@ -37,3 +37,15 @@ Po zmianach w Dockerze: `docker compose up -d --build`, potem odśwież stronę.
 Wymiary areny i grawitacja: `game/arena.ts`.
 
 Testy: `node tests/movement.mjs`, `npx tsc --noEmit`, `npx vite build`.
+
+## Aktualizacja — dwóch graczy
+
+Demo tworzy JustRandomePlayer i Neo. Klawisze każdego pochodzą z jego
+sekcji `controls.txt`. Wpisy `player1.run` i `player2.run` zostały usunięte:
+bieg uruchamia dwuklik przodu i trwa do puszczenia; dwuklik tyłu to odskok.
+Wcześniejsza tabela z Shiftem opisuje poprzednią wersję.
+Kierunek jest względny wobec przeciwnika. Cofanie nie odwraca sprite'a.
+Konfiguracja musi również zawierać `backwardSpeed`, `backdashSpeed` oraz
+animacje `walkBackward` i `backdash`. Klatka może mieć własny `source`
+i `scale`, gdy korzysta z dodatkowego arkusza. Prostokąt ciała pozostaje
+niezależny od grafiki, a ściany uwzględniają jej maksymalny zasięg.

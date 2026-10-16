@@ -1,6 +1,6 @@
-export interface PlayerControls { left: string; right: string; run: string; jump: string; crouch: string; }
+export interface PlayerControls { left: string; right: string; jump: string; crouch: string; }
 export interface Controls { player1: PlayerControls; player2: PlayerControls; }
-const actions = ['left', 'right', 'run', 'jump', 'crouch'] as const;
+const actions = ['left', 'right', 'jump', 'crouch'] as const;
 export function parseControls(text: string): Controls {
     const values = new Map<string, string>();
     const required = ['player1', 'player2'].flatMap(player => actions.map(action => `${player}.${action}`));

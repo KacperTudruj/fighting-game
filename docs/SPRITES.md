@@ -286,3 +286,41 @@ nie na ponownym zwiększaniu liczby podobnych póz. Poprawki muszą utrzymać
 stałą skalę i zapewnić margines pod stopami. Dopiero po akceptacji cykli
 podłączymy je oraz wygenerujemy cofanie i odskok. Neo na tym etapie jest
 wzorcem wyglądu, bez kodu postaci i bez animacji.
+
+## Dwóch zawodników — 2026-10-16
+
+Neo jest teraz drugim sterowalnym zawodnikiem. Dodano jego arkusz
+`game/fighters/neo/sprites-v1.png` (36 póz) i osobny arkusz cofania/odskoku
+`game/fighters/just-randome-player/retreat-v1.png` (8 póz).
+Oba wygenerowano wbudowanym ImageGen na podstawie istniejących wzorców.
+Klatki mierzone z alfa >128 są zapisane w plikach `*-bounds.ts`.
+Źródłowe bitmapy nie były edytowane skryptem. Renderer obsługuje opcjonalne
+`source` i `scale` dla klatki, więc animacje mogą korzystać z różnych PNG.
+
+Neo: 0–5 idle, 6–11 walk, 12–17 run, 19–20 jump, 21 fall,
+22–23 land, 31–32 crouch, 24–29 walkBackward, 33–35 backdash.
+JustRandomePlayer zachowuje dotychczasowy arkusz dla podstawowego ruchu;
+nowe klatki 36–39 to walkBackward, 40–43 to backdash.
+Robocze arkusze walk-v2/run-v2 pozostają poza grą z powodów jakości opisanych wyżej.
+
+Kierunek patrzenia zależy od przeciwnika. Cofanie jest wolniejsze (95 px/s),
+chód 180 px/s, bieg 340 px/s. Dwuklik przodu w ciągu 12 kroków symulacji
+uruchamia bieg do puszczenia klawisza lub zmiany kierunku/strony.
+Dwuklik tyłu uruchamia jeden odskok trwający 18 kroków przy 380 px/s.
+Systemowe powtarzanie klawisza nie uruchamia dwukliku. W powietrzu nie można
+rozpocząć kolejnego skoku ani odskoku. Kucanie blokuje start ruchów.
+Kolizje ciał mają 96 px szerokości; ograniczenie przy ścianie dodatkowo
+uwzględnia zasięg sprite'a, żeby płaszcz/kończyny nie wypadały poza ekran.
+Skok dostrojono do mijania przeciwnika nad jego ciałem; bieg można kontynuować
+w skoku. Na podłożu postacie zatrzymują się na sobie.
+
+Grafiki mają odrębne pozy dla każdej obsługiwanej akcji, ale nadal są
+prototypem: pełna naprzemienność nóg i proporcje generowanych klatek
+wymagają dalszej pracy artystycznej. To wersja do testowania dwóch graczy.
+
+Prompty tego kroku: Neo — arkusz 6 × 6, wiersze: stanie, chód, bieg,
+skok/opadanie/lądowanie, cofanie, kucanie/odskok; zachować referencyjną twarz,
+okulary i czarny płaszcz, cały czas w prawo, alfa, stała skala i marginesy.
+JustRandomePlayer — 4 × 2, pierwszy wiersz cztery pozy cofania w gardzie
+z twarzą w prawo, drugi cztery pozy odskoku: przygotowanie, lot, opadanie,
+lądowanie; zachować okulary, brodę, koszulkę z mopsem i jeansy, przezroczystość.

@@ -1,6 +1,6 @@
 export interface FighterInput {
     direction: -1 | 0 | 1;
-    run: boolean;
+    doubleTap: -1 | 0 | 1;
     crouch: boolean;
     jump: boolean;
 }

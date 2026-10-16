@@ -1,12 +1,15 @@
-# Neo — wzorzec postaci
+# Neo — gracz 2
 
-`reference-v1.png` to wygenerowana sylwetka referencyjna dla drugiego
-zawodnika. Nie jest arkuszem animacji ani postacią podłączoną do gry.
+Postać jest podłączona do gry. `reference-v1.png` jest wzorcem wyglądu,
+`sprites-v1.png` arkuszem 36 póz, `sprites-v1-bounds.ts` zawiera ich
+prostokąty, a `definition.ts` mapuje je na stany silnika.
 
-Styl: komiksowe arcade wspólne z JustRandomePlayer. Krótkie ciemne włosy,
-wąskie czarne okulary, czarny płaszcz z wysokim kołnierzem i rozciętymi
-połami, czarne spodnie i buty, spokojna garda. Bez broni.
+Obsługiwane animacje: stanie, chód, bieg, skok, opadanie, lądowanie,
+kucanie, cofanie oraz odskok w tył. Generowane pozy pozostają prototypem.
 
-Dalsze arkusze powinny zachować tę twarz, proporcje, strój i kształt płaszcza.
-Lista planowanych animacji i zachowań: `docs/SPRITES.md`.
-Pełny prompt użyty we wbudowanym ImageGen: `docs/sprite-prompts-v2.md`.
+Sterowanie z `public/controls.txt`: strzałki lewo/prawo, góra skok,
+dół kucanie. Dwuklik kierunku do przeciwnika i przytrzymanie oznacza bieg;
+dwuklik kierunku od przeciwnika oznacza jeden odskok. Przód zależy od
+położenia drugiego zawodnika. Neo zawsze patrzy na niego.
+
+Styl, dalsze wymagania animacji i historia: `docs/SPRITES.md`.

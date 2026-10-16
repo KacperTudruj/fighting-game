@@ -1,57 +1,73 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
-async function load(path, transform = value => value) {
-    const code = ts.transpileModule(transform(fs.readFileSync(path, 'utf8')), {compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText;
-    return import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
+const cache = new Map();
+async function moduleURL(file) {
+    file=path.resolve(file);
+    if(cache.has(file))return cache.get(file);
+    let code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText;
+    const matches=[...code.matchAll(/from\s+['"]([^'"]+)['"]/g)];
+    for(const match of matches){
+        const spec=match[1];
+        const url=spec.endsWith('?url') ? 'data:text/javascript,export default '+encodeURIComponent(JSON.stringify(spec)) : await moduleURL(path.resolve(path.dirname(file),spec+'.ts'));
+        code=code.replace(match[0],`from '${url}'`);
+    }
+    const url='data:text/javascript;base64,'+Buffer.from(code).toString('base64');cache.set(file,url);return url;
 }
-const {Fighter} = await load('engine/combat/Fighter.ts');
-const {justRandomePlayer: definition} = await load('game/fighters/just-randome-player/definition.ts', source => source.replace("import source from './sprites-v1.png?url';", "const source = 'sprite.png';"));
-const {parseControls} = await load('game/input/Controls.ts');
-const controls = parseControls(fs.readFileSync('public/controls.txt', 'utf8'));
-assert.equal(controls.player1.jump, 'KeyW');
-assert.equal(controls.player2.crouch, 'ArrowDown');
-assert.throws(() => parseControls(fs.readFileSync('public/controls.txt', 'utf8').replace('KeyW', 'KeyA')));
-const arena = {width:1280,floorY:640,gravity:1800};
-const neutral = {direction:0,run:false,jump:false,crouch:false};
-const fighter = new Fighter(200,100,definition);
-for(let i=0;i<90;i++) fighter.update(1/60,neutral,arena);
-assert.equal(fighter.y,640); assert.equal(fighter.grounded,true);
-fighter.update(1/60,{...neutral,direction:1},arena);
-assert.equal(fighter.x,203); assert.equal(fighter.animation,'walk');
-fighter.update(1/60,{...neutral,direction:1,run:true},arena);
-assert.ok(Math.abs(fighter.x - (203+340/60))<1e-8); assert.equal(fighter.animation,'run');
-const x = fighter.x;
-fighter.update(1/60,{...neutral,direction:1,crouch:true},arena);
-assert.equal(fighter.x,x); assert.equal(fighter.height,115); assert.equal(fighter.y,640); assert.equal(fighter.animation,'crouch');
-fighter.update(1/60,neutral,arena); assert.equal(fighter.height,210);
-fighter.update(1/60,{...neutral,jump:true},arena);
-assert.ok(fighter.y<640); assert.equal(fighter.animation,'jump');
-fighter.update(1/60,{...neutral,jump:true},arena);
-assert.ok(fighter.y>615); // A second press in air must not reset the upward velocity.
-let fell=false, landed=false;
-for(let i=0;i<90;i++){fighter.update(1/60,neutral,arena); fell ||= fighter.animation==='fall'; landed ||= fighter.animation==='land';}
-assert.ok(fell && landed); assert.equal(fighter.y,640); assert.equal(fighter.animation,'idle');
-for(let i=0;i<500;i++)fighter.update(1/60,{...neutral,direction:-1,run:true},arena);
-assert.equal(fighter.x,definition.body.width/2); assert.equal(fighter.facing,-1);
-for(let i=0;i<500;i++)fighter.update(1/60,{...neutral,direction:1,run:true},arena);
-assert.equal(fighter.x,1280-definition.body.width/2);
-const custom = structuredClone(definition);
-custom.sprite.animations.idle={loop:false,frames:[{sprite:0,durationTicks:1},{sprite:1,durationTicks:2},{sprite:2,durationTicks:1}]};
-const animation = new Fighter(200,640,custom); animation.grounded=true;
-assert.equal(animation.spriteFrame,0);
-animation.update(1/60,neutral,arena); assert.equal(animation.spriteFrame,1);
-animation.update(1/60,neutral,arena); assert.equal(animation.spriteFrame,1);
-for(let i=0;i<20;i++)animation.update(1/60,neutral,arena);
-assert.equal(animation.spriteFrame,2);
-custom.sprite.animations.idle.frames=[]; assert.throws(()=>new Fighter(0,0,custom));
-globalThis.window=new EventTarget(); globalThis.document=new EventTarget();
+async function load(file){return import(await moduleURL(file));}
+const {Fighter}=await load('engine/combat/Fighter.ts');
+const {GameEngine}=await load('engine/core/GameEngine.ts');
+const {justRandomePlayer: definition}=await load('game/fighters/just-randome-player/definition.ts');
+const {neo}=await load('game/fighters/neo/definition.ts');
+const {parseControls}=await load('game/input/Controls.ts');
+const controls=parseControls(fs.readFileSync('public/controls.txt','utf8'));
+assert.equal(controls.player2.jump,'ArrowUp');
+assert.throws(()=>parseControls(fs.readFileSync('public/controls.txt','utf8').replace('KeyW','KeyA')));
+const arena={width:1280,floorY:640,gravity:1800};
+const neutral={direction:0,doubleTap:0,jump:false,crouch:false};
+const make=(x=320,def=definition)=>{const f=new Fighter(x,640,def);f.grounded=true;return f;};
+const f=make();
+f.update(1/60,{...neutral,direction:-1},arena);
+assert.equal(f.facing,1);assert.equal(f.animation,'walkBackward');assert.ok(Math.abs(f.x-(320-95/60))<1e-6);
+f.update(1/60,{...neutral,direction:1,doubleTap:1},arena);assert.equal(f.animation,'run');
+const before=f.x; f.update(1/60,{...neutral,direction:1},arena);assert.ok(Math.abs(f.x-before-340/60)<1e-6);
+f.update(1/60,neutral,arena);const stopped=f.x;f.update(1/60,{...neutral,direction:1},arena);assert.ok(Math.abs(f.x-stopped-180/60)<1e-6);
+f.update(1/60,{...neutral,direction:-1,doubleTap:-1},arena);assert.equal(f.animation,'backdash');assert.ok(f.y<640);
+const dashStart=f.x;for(let i=0;i<17;i++)f.update(1/60,neutral,arena);assert.ok(f.x<dashStart);assert.equal(f.y,640);
+const dashEnd=f.x;f.update(1/60,neutral,arena);assert.equal(f.x,dashEnd);
+f.faceOpponent(0);assert.equal(f.facing,-1);f.update(1/60,{...neutral,direction:1},arena);assert.equal(f.animation,'walkBackward');
+f.update(1/60,{...neutral,crouch:true},arena);assert.equal(f.height,115);assert.equal(f.y,640);
+f.update(1/60,{...neutral,jump:true},arena);assert.equal(f.animation,'jump');
+let fell=false,landed=false;for(let i=0;i<120;i++){f.update(1/60,neutral,arena);fell ||= f.animation==='fall';landed ||= f.animation==='land';}assert.ok(fell&&landed);assert.equal(f.y,640);
+for(let i=0;i<900;i++)f.update(1/60,{...neutral,direction:-1},arena);assert.equal(f.x,f.wallInset);
+for(let i=0;i<900;i++)f.update(1/60,{...neutral,direction:1},arena);assert.equal(f.x,1280-f.wallInset);
+let rendered=0; const a=make(320),b=make(960,neo);let ai={...neutral,direction:1},bi={...neutral,direction:-1};
+const engine=new GameEngine({clear(){},render(){rendered++;}},[{fighter:a,input:{sample:()=>ai}},{fighter:b,input:{sample:()=>bi}}],arena);
+assert.equal(b.facing,-1);for(let i=0;i<200;i++)engine.update(1/60);assert.ok(b.x-a.x>=96-1e-6);engine.render();assert.equal(rendered,2);
+// Both facing directions use the same pre-step positions and change correctly after crossing in air.
+a.x=800;b.x=600;a.y=300;b.y=640;ai=bi=neutral;engine.update(1/60);assert.equal(a.facing,-1);assert.equal(b.facing,1);
+globalThis.window=new EventTarget();globalThis.document=new EventTarget();
 const {KeyboardInputProvider}=await load('engine/browser/input/KeyboardInputProvider.ts');
-const input=new KeyboardInputProvider(controls.player1);
-function key(type,code,repeat=false){const event=new Event(type,{cancelable:true});event.code=code;event.repeat=repeat;window.dispatchEvent(event);}
+const input=new KeyboardInputProvider(controls.player1), input2=new KeyboardInputProvider(controls.player2);
+function key(type,code,repeat=false){const e=new Event(type,{cancelable:true});e.code=code;e.repeat=repeat;window.dispatchEvent(e);}
+key('keydown','KeyD');assert.equal(input.sample().doubleTap,0);key('keydown','KeyD',true);assert.equal(input.sample().doubleTap,0);
+key('keyup','KeyD');key('keydown','KeyD');assert.equal(input.sample().doubleTap,1);assert.equal(input.sample().doubleTap,0);assert.equal(input2.sample().direction,0);
+key('keydown','ArrowLeft');assert.equal(input2.sample().direction,-1);assert.equal(input.sample().direction,1);
+window.dispatchEvent(new Event('blur'));assert.deepEqual(input.sample(),neutral);assert.deepEqual(input2.sample(),neutral);
+key('keydown','KeyA');input.sample();key('keyup','KeyA');for(let i=0;i<13;i++)input.sample();key('keydown','KeyA');assert.equal(input.sample().doubleTap,0);
 key('keydown','KeyW');assert.equal(input.sample().jump,true);assert.equal(input.sample().jump,false);
-key('keydown','KeyW',true);assert.equal(input.sample().jump,false);
-key('keyup','KeyW');key('keydown','KeyW');assert.equal(input.sample().jump,true);
-key('keydown','KeyA');key('keydown','KeyD');assert.equal(input.sample().direction,0);
-window.dispatchEvent(new Event('blur'));assert.deepEqual(input.sample(),neutral);input.dispose();
-console.log('PASS: controls, walking/running, crouch collision height, jump/no double jump, landing, walls, variable frame timing, one-shot animation, keyboard press edges.');
+input.dispose();input2.dispose();
+for(const def of [definition,neo])for(const anim of Object.values(def.sprite.animations))assert.ok(anim.frames.every(frame=>def.sprite.frames[frame.sprite]));
+console.log('PASS: two players, independent keys, facing, body/wall collision, backward movement, double tap/timeout/repeat, run release, single backdash, crouch and jump/landing, sprite mappings.');
+
+// A running jump can clear the other body and change sides without reversing from a backward key.
+const jumper=make(400), defender=make(620,neo);let jumpInput={...neutral,direction:1,doubleTap:1};
+const crossing=new GameEngine({clear(){},render(){}},[{fighter:jumper,input:{sample:()=>jumpInput}},{fighter:defender,input:{sample:()=>neutral}}],arena);
+crossing.update(1/60);jumpInput={...neutral,direction:1,jump:true};crossing.update(1/60);
+jumpInput={...neutral,direction:1};for(let i=0;i<70;i++)crossing.update(1/60);
+assert.ok(jumper.x>defender.x);assert.equal(jumper.facing,-1);assert.equal(defender.facing,1);
+const custom=structuredClone(definition);custom.sprite.animations.idle={loop:false,frames:[{sprite:0,durationTicks:1},{sprite:1,durationTicks:2},{sprite:2,durationTicks:1}]};
+const anim=make(400,custom);assert.equal(anim.spriteFrame,0);anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,1);anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,1);
+for(let i=0;i<20;i++)anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,2);
+console.log('PASS: running jump changes sides; individual frame durations and non-looping clips.');

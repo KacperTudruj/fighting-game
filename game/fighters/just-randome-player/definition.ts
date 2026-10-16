@@ -1,3 +1,5 @@
+import retreatSource from './retreat-v1.png?url';
+import { bounds as retreatBounds } from './retreat-v1-bounds';
 import { FighterDefinition, AnimationDefinition } from '../../../engine/combat/FighterDefinition';
 import source from './sprites-v1.png?url';
 // Bounds measured from opaque connected silhouettes; no bitmap modification.
@@ -14,12 +16,13 @@ const clip = (sprites: number[], durationTicks: number, loop = true): AnimationD
 });
 export const justRandomePlayer: FighterDefinition = {
     id: 'just-randome-player', name: 'JustRandomePlayer',
-    walkSpeed: 180, runSpeed: 340, jumpSpeed: 700,
-    body: { width: 192, height: 210, crouchHeight: 115 },
+    walkSpeed: 180, runSpeed: 340, backwardSpeed: 95, backdashSpeed: 380, jumpSpeed: 1050,
+    body: { width: 96, height: 210, crouchHeight: 115 },
     sprite: {
         source, scale: 1,
-        frames: bounds.map(([x,y,right,bottom]) => ({ x, y, width: right-x, height: bottom-y, anchorX: (right-x)/2, anchorY: bottom-y })),
+        frames: [...bounds.map(([x,y,right,bottom]) => ({ x, y, width: right-x, height: bottom-y, anchorX: (right-x)/2, anchorY: bottom-y })), ...retreatBounds.map(([x,y,right,bottom]) => ({ x, y, width:right-x, height:bottom-y, anchorX:(right-x)/2, anchorY:bottom-y, source:retreatSource, scale:0.51 }))],
         animations: {
+            walkBackward: clip([36,37,38,39], 9), backdash: clip([40,41,42,43], 4, false),
             idle: clip([0,1,2,3,4,5], 12), walk: clip([6,7,8,9,10,11], 7),
             run: clip([12,13,14,15,16,17], 5), jump: clip([20,21,22,23], 5, false),
             fall: clip([24,25], 7, false), land: clip([26,27,28,29], 3, false),
@@ -27,4 +30,3 @@ export const justRandomePlayer: FighterDefinition = {
         },
     },
 };
-
