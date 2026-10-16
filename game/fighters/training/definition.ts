@@ -1,19 +1,13 @@
-import { FighterDefinition } from "../../../engine/combat/FighterDefinition";
-import spriteSource from "./sprites.svg?url";
-
+import { FighterDefinition } from '../../../engine/combat/FighterDefinition';
+import source from './sprites.svg?url';
+const idle = { loop: true, frames: [0,1].map(sprite => ({sprite, durationTicks:24})) };
+const walk = { loop: true, frames: [2,3].map(sprite => ({sprite, durationTicks:10})) };
 export const trainingFighter: FighterDefinition = {
-    id: "training",
-    name: "Treningowy wojownik",
-    walkSpeed: 120,
+    id: 'training', name: 'Treningowy wojownik', walkSpeed:120, runSpeed:240, jumpSpeed:700,
+    body: {width:80,height:180,crouchHeight:100},
     sprite: {
-        source: spriteSource,
-        frameWidth: 64,
-        frameHeight: 96,
-        columns: 4,
-        scale: 2,
-        animations: {
-            idle: { frames: [0, 1], frameDuration: 24 },
-            walk: { frames: [2, 3], frameDuration: 10 },
-        },
+        source, scale:2,
+        frames: [0,1,2,3].map(i => ({x:i*64,y:0,width:64,height:96,anchorX:32,anchorY:90})),
+        animations: {idle,walk,run:walk,jump:idle,fall:idle,land:idle,crouch:idle},
     },
 };

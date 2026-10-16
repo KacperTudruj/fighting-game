@@ -158,3 +158,27 @@ Nie podłączać arkusza do gry bez weryfikacji i konfiguracji stanu animacji.
 
 - 2026-10-16: styl v1, JustRandomePlayer, prompt pierwszego arkusza,
   specyfikacja przyszłych animacji. Bez zmian fizyki i runtime'u.
+
+## Integracja v2 — 2026-10-16
+
+Arkusz v1 jest podłączony jako JustRandomePlayer. Pomiar sylwetek wykazał,
+że podział na równe komórki 209 px przecinałby postacie. Konfiguracja
+`game/fighters/just-randome-player/definition.ts` zawiera więc 36 osobnych
+prostokątów zmierzonych z kanału alfa, zamiast siatki. PNG pozostaje oryginalny.
+Każdy prostokąt ma punkt zaczepienia na środku dolnej krawędzi sylwetki.
+To wyrównuje podłogę, choć ręcznie rysowane pozy mogą nadal wykazywać
+niewielkie różnice proporcji i przesunięcia w cyklu; wymagają oceny w ruchu.
+
+Opisany wcześniej kontrakt animacji jest już wdrożony: `loop`, lista
+`{ sprite, durationTicks }`, dowolna liczba klatek i indywidualne czasy.
+Przykład JSON opisuje teraz strukturę animacji; pełna definicja pozostaje TS.
+Silnik obsługuje idle/walk/run/jump/fall/land/crouch. Podczas skoku wybiera
+pozy 20–23 (bez przygotowania, żeby reakcja na klawisz była natychmiastowa),
+opadanie używa 24–25, lądowanie 26–29, kucanie pętli 34–35.
+Wszystkie indeksy odnoszą się do listy prostokątów, nie równych komórek PNG.
+Pozycja zawodnika to teraz środek stóp, nie lewy górny róg klatki.
+Fizyka steruje skokiem, podłogą i wysokością ciała przy kucaniu.
+Nowa nazwa animacji nadal wymaga logiki, która wybierze jej odtwarzanie.
+
+Przyszłe generacje nadal powinny stosować regularną siatkę z prompta.
+Obecna obsługa prostokątów pozwala też korzystać z atlasów nieregularnych.

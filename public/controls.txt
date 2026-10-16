@@ -1,7 +1,12 @@
-# Klawisze w formacie KeyboardEvent.code: KeyA, KeyD, ArrowLeft, ArrowRight itd.
-# Zmien ten plik i odswiez strone. W Dockerze po zmianie przebuduj obraz.
-# Obecne demo korzysta z player1. player2 jest konfiguracja dla drugiego gracza.
+# KeyboardEvent.code. Po zmianie w Dockerze: docker compose up -d --build
+# Demo korzysta z player1; player2 jest przygotowany dla drugiego zawodnika.
 player1.left=KeyA
 player1.right=KeyD
+player1.run=ShiftLeft
+player1.jump=KeyW
+player1.crouch=KeyS
 player2.left=ArrowLeft
 player2.right=ArrowRight
+player2.run=ShiftRight
+player2.jump=ArrowUp
+player2.crouch=ArrowDown

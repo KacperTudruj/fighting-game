@@ -39,21 +39,22 @@ export class CanvasRenderer implements Renderer {
         const sprite = fighter.definition.sprite;
         const image = this.sprites.get(sprite.source);
         if (!image) return;
+        const frame = sprite.frames[fighter.spriteFrame];
 
-        context.imageSmoothingEnabled = false;
+        context.imageSmoothingEnabled = true;
         context.save();
-        context.translate(fighter.x + (fighter.facing === -1 ? fighter.width : 0), fighter.y);
+        context.translate(fighter.x, fighter.y);
         context.scale(fighter.facing, 1);
         context.drawImage(
             image,
-            (fighter.spriteFrame % sprite.columns) * sprite.frameWidth,
-            Math.floor(fighter.spriteFrame / sprite.columns) * sprite.frameHeight,
-            sprite.frameWidth,
-            sprite.frameHeight,
-            0,
-            0,
-            sprite.frameWidth * sprite.scale,
-            sprite.frameHeight * sprite.scale,
+            frame.x,
+            frame.y,
+            frame.width,
+            frame.height,
+            -frame.anchorX * sprite.scale,
+            -frame.anchorY * sprite.scale,
+            frame.width * sprite.scale,
+            frame.height * sprite.scale,
         );
         context.restore();
     }

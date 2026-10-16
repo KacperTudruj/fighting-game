@@ -4,7 +4,7 @@ import { GameLoop } from "../engine/core/loop/GameLoop";
 import { GameLoopRunner } from "../engine/browser/loop/GameLoopRunner";
 import { CanvasRenderer } from "../engine/browser/rendering/CanvasRenderer";
 import { Game } from "../game/Game";
-import { trainingFighter } from "../game/fighters/training/definition";
+import { justRandomePlayer } from "../game/fighters/just-randome-player/definition";
 import { KeyboardInputProvider } from "../engine/browser/input/KeyboardInputProvider";
 import { parseControls } from "../game/input/Controls";
 import { arena } from "../game/arena";
@@ -16,14 +16,14 @@ document.body.appendChild(canvas);
 
 const renderer = new CanvasRenderer(canvas);
 
-const fighter = new Fighter(100, 100, trainingFighter);
+const fighter = new Fighter(100, 100, justRandomePlayer);
 canvas.style.background = `linear-gradient(to bottom, #222 0px, #222 ${arena.floorY}px, #475569 ${arena.floorY}px, #475569 100%)`;
 
 async function start(): Promise<void> {
     const response = await fetch(`${import.meta.env.BASE_URL}controls.txt`, { cache: "no-store" });
     if (!response.ok) throw new Error("Nie udało się wczytać controls.txt");
     const controls = parseControls(await response.text());
-    await renderer.loadSprite(trainingFighter.sprite.source);
+    await renderer.loadSprite(justRandomePlayer.sprite.source);
     const input = new KeyboardInputProvider(controls.player1);
     const engine = new GameEngine(renderer, fighter, input, arena);
     const game = new Game(new GameLoopRunner(new GameLoop(engine)));

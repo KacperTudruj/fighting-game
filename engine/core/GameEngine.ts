@@ -15,7 +15,7 @@ export class GameEngine implements GameLoopCallbacks {
     }
 
     update(deltaTimeSeconds: number): void {
-        this.fighter.update(deltaTimeSeconds, this.input.horizontalAxis(), this.arena);
+        this.fighter.update(deltaTimeSeconds, this.input.sample(), this.arena);
     }
     
     render(): void {
