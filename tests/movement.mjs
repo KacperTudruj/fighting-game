@@ -71,3 +71,15 @@ const custom=structuredClone(definition);custom.sprite.animations.idle={loop:fal
 const anim=make(400,custom);assert.equal(anim.spriteFrame,0);anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,1);anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,1);
 for(let i=0;i<20;i++)anim.update(1/60,neutral,arena);assert.equal(anim.spriteFrame,2);
 console.log('PASS: running jump changes sides; individual frame durations and non-looping clips.');
+const {smith} = await load('game/fighters/smith/definition.ts');
+const roster=[definition,neo,smith];
+for(const first of roster) for(const second of roster){
+    const one=make(320,first),two=make(960,second);
+    const match=new GameEngine({clear(){},render(){}},[{fighter:one,input:{sample:()=>neutral}},{fighter:two,input:{sample:()=>neutral}}],arena);
+    for(let i=0;i<60;i++)match.update(1/60);
+    assert.equal(one.y,640);assert.equal(two.y,640);assert.equal(one.facing,1);assert.equal(two.facing,-1);
+    assert.notEqual(one,two);
+    assert.ok(first.sprite.frames[one.spriteFrame]);assert.ok(second.sprite.frames[two.spriteFrame]);
+    one.x+=10;assert.equal(two.x,960);
+}
+console.log('PASS: all nine character pairings including Smith and independent mirror matches.');

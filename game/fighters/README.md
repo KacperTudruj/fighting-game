@@ -49,3 +49,14 @@ Konfiguracja musi również zawierać `backwardSpeed`, `backdashSpeed` oraz
 animacje `walkBackward` i `backdash`. Klatka może mieć własny `source`
 i `scale`, gdy korzysta z dodatkowego arkusza. Prostokąt ciała pozostaje
 niezależny od grafiki, a ściany uwzględniają jej maksymalny zasięg.
+
+## Menu wyboru postaci
+
+Gra zaczyna od menu trzech postaci: JustRandomePlayer, Neo, Agent Smith.
+A/D i lewo/prawo zmieniają wybór; F oraz Enter numeryczny potwierdzają.
+Przypisania to pola `confirm` w `controls.txt`. Można cofnąć własną gotowość
+ponownym potwierdzeniem, zanim gotowy będzie drugi gracz. Po dwóch
+potwierdzeniach startuje arena. Dozwolone są pojedynki tej samej postaci.
+Nową postać dodaj do listy przekazywanej do `selectCharacters` w `src/main.ts`.
+Menu używa pierwszej klatki `idle` jako podglądu; nie wymaga osobnego portretu.
+Test menu: `node tests/character-selection.mjs`.

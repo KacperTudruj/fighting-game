@@ -1,6 +1,6 @@
-export interface PlayerControls { left: string; right: string; jump: string; crouch: string; }
+export interface PlayerControls { left: string; right: string; jump: string; crouch: string; confirm: string; }
 export interface Controls { player1: PlayerControls; player2: PlayerControls; }
-const actions = ['left', 'right', 'jump', 'crouch'] as const;
+const actions = ['left', 'right', 'jump', 'crouch', 'confirm'] as const;
 export function parseControls(text: string): Controls {
     const values = new Map<string, string>();
     const required = ['player1', 'player2'].flatMap(player => actions.map(action => `${player}.${action}`));
@@ -23,5 +23,8 @@ export function parseControls(text: string): Controls {
         if (new Set(Object.values(result)).size !== actions.length) throw new Error(`Konflikt klawiszy: ${id}`);
         return result;
     };
-    return { player1: player('player1'), player2: player('player2') };
+    const result = { player1: player('player1'), player2: player('player2') };
+    const menuKeys = [result.player1, result.player2].flatMap(keys => [keys.left, keys.right, keys.confirm]);
+    if (new Set(menuKeys).size !== menuKeys.length) throw new Error('Klawisze wyboru i zatwierdzania obu graczy muszą być różne');
+    return result;
 }

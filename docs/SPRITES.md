@@ -324,3 +324,74 @@ okulary i czarny płaszcz, cały czas w prawo, alfa, stała skala i marginesy.
 JustRandomePlayer — 4 × 2, pierwszy wiersz cztery pozy cofania w gardzie
 z twarzą w prawo, drugi cztery pozy odskoku: przygotowanie, lot, opadanie,
 lądowanie; zachować okulary, brodę, koszulkę z mopsem i jeansy, przezroczystość.
+
+## Menu trzech postaci i wspólny styl — 2026-10-16
+
+Menu udostępnia JustRandomePlayer, Neo i Agenta Smitha. Każdy gracz
+samodzielnie wybiera i zatwierdza postać. Możliwy jest wybór tej samej
+postaci przez obu graczy. Ponowne zatwierdzenie cofa gotowość, dopóki
+obaj nie są gotowi. Wtedy uruchamia się arena z wybraną parą.
+
+Nowe przypisania w `controls.txt`: `player1.confirm=KeyF` oraz
+`player2.confirm=NumpadEnter`. Zwykły Enter i Enter numeryczny są różnymi
+kodami. Przytrzymanie nie przewija menu i nie zatwierdza wielokrotnie.
+Można również użyć przycisków ekranowych. Klawisze wyboru i zatwierdzania
+obu graczy muszą być różne, żeby jeden klawisz nie zatwierdzał obu naraz.
+Przycisk „Zmień postacie” przeładowuje grę i wraca do menu.
+
+### Obowiązujący wzorzec proporcji
+
+Wzorcem jest JustRandomePlayer. Dla nowych postaci (w tym Smitha):
+
+- Wysokość stojącej sylwetki około 4,5 wysokości głowy; głowa zajmuje
+  około 22% wysokości. To karykatura arcade, nie realistyczna anatomia.
+- Lekko powiększone dłonie i buty, krótkie zwarte kończyny, czytelna garda.
+- Ta sama wielkość głowy i długości kończyn we wszystkich klatkach;
+  zmiana pozy lub numeru wiersza nie zmienia skali postaci.
+- Mocny ciemnoszary kontur; kontur zewnętrzny wyraźniejszy od detali twarzy.
+- Kolory bazowe i jeden poziom cienia, bez gradientów, realistycznych
+  tekstur, rozmycia ruchu ani fotograficznego oświetlenia.
+- Kamera boczna, postać w prawo, twarz lekko w trzech czwartych; żadnego
+  obrotu kamery między stanami. Cofanie nadal z twarzą do przeciwnika.
+- Czytelność przy wysokości około 210 px w grze ma pierwszeństwo nad detalem.
+- Wygląd postaci opisuje twarz i strój. Wspólne proporcje, kontur,
+  cieniowanie i kamera pozostają takie same dla całej obsady.
+
+Smith: szeroka kanciasta szczęka bez brody, zaczesane brązowe włosy,
+wąskie czarne okulary, ciemny garnitur, biała koszula, czarny krawat,
+słuchawka ze spiralnym przewodem i ciemne półbuty.
+Neo zachowuje obecny zestaw; jego dostosowanie do nowych proporcji jest
+osobnym przyszłym krokiem, nie częścią tej zmiany.
+
+### Uniwersalny prompt do nowych sprite'ów
+
+Podstaw opis postaci i konkretną listę faz ruchu. Jako referencję stylu
+załącz zaakceptowaną postać JustRandomePlayer; referencję tożsamości
+opisuj osobno, żeby generator nie kopiował ubioru postaci wzorcowej.
+
+```text
+Create a production-oriented transparent PNG sprite sheet for a 2D fighting game.
+Character identity and outfit: [CHARACTER DESCRIPTION].
+Reference roles: [IDENTITY REFERENCE] controls face and clothing only;
+[STYLE REFERENCE: JustRandomePlayer] controls proportions, linework and shading.
+Shared arcade caricature: standing height approximately 4.5 head heights,
+head approximately 22 percent of total height, compact limbs, slightly enlarged
+fists and shoes. Preserve exactly the same head size and limb lengths throughout.
+Crisp dark charcoal outer contour, lighter interior details, flat base colors
+and one shadow tone. No gradients, photorealism, blur, texture or cast shadows.
+Side view facing RIGHT, face slightly three-quarter visible. Fixed camera.
+Animate in place. Never rotate the whole figure away when retreating.
+Animation: [STATE]. Exact chronological key poses: [PHASE LIST].
+Number of unique frames: [COUNT]. Reading order: left to right, top to bottom.
+Layout: [COLUMNS] by [ROWS], equal cells, generous transparent gutters.
+Whole body and feet inside every frame. Identical scale, consistent foot anchor.
+For walking/running show BOTH near-leg-leading and far-leg-leading strides,
+passing poses and opposing arm swings; darken far limbs for readability.
+Do not copy the first frame as the last frame. Do not shrink later rows.
+True alpha background, no drawn checkerboard, text, grid lines or scenery.
+```
+
+Arkusz jest zawsze weryfikowany po generacji: proporcje są wymaganiem,
+a nie właściwością gwarantowaną przez sam prompt. Szczególnie sprawdzać
+skalę w dolnych rzędach i pełny cykl obu nóg.
+Pełny prompt faktycznie użyty dla Smitha: `game/fighters/smith/README.md`.
