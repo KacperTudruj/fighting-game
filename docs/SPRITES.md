@@ -1,5 +1,32 @@
 # Sprite'y i animacje — żywa specyfikacja
 
+## Korekta tożsamości Agenta Smitha
+
+Obecny arkusz Smitha został odrzucony jako zbyt podobny do JustRandomePlayer.
+Wspólne mają być proporcje ciała, kontur i sposób cieniowania, a nie twarz,
+fryzura czy budowa konkretnej postaci. Wzorzec tożsamości Smitha stanowi
+Agent Smith grany przez Hugo Weavinga w filmie Matrix z 1999 roku.
+
+Nowa sylwetka referencyjna: `game/fighters/smith/reference-v2.png`.
+Status: do akceptacji wyglądu; nie zastępuje jeszcze animacji w grze.
+
+- Wydłużona, kanciasta twarz, wysokie czoło, cofnięta linia włosów,
+  wyraziste kości policzkowe, długi prosty nos, cienkie zaciśnięte usta.
+- Gładko zaczesane włosy blisko czaszki, bez wysokiego quiffa i bez brody.
+- Wąskie czarne okulary, słuchawka, formalny garnitur z pełnymi rękawami,
+  koszula, krawat i półbuty. Przedramiona zakryte.
+- Karykaturalne proporcje około 4,5 głowy wysokości; rozpoznawalność
+  filmowej twarzy ma pierwszeństwo przed podobieństwem do innego zawodnika.
+- Zielonkawo-oliwkowe cienie, chłodna przygaszona skóra, zielonoczarny
+  garnitur i lekko zielonkawa biel koszuli. Skóra pozostaje ludzka,
+  bez neonowej zieleni. Paleta nawiązuje do obrazu oryginalnego Matrixa.
+
+Przy generowaniu referencji v2 nie podajemy arkusza JustRandomePlayer jako
+obrazu wejściowego: generator kopiował z niego tożsamość mimo rozdzielenia
+ról w tekście. Proporcje i kreskę opisujemy słownie. Po akceptacji sylwetki
+to ona będzie referencją kolejnych animacji Smitha.
+Dokładny prompt generacji: `game/fighters/smith/reference-v2-prompt.md`.
+
 Dokument rozwijamy wraz z grą. Zmiana stylu lub układu arkusza wymaga
 aktualizacji tego pliku i konfiguracji postaci. Sam obraz nie zawiera
 informacji pozwalających silnikowi rozpoznać chód, bieg lub skok.

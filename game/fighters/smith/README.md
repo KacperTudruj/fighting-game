@@ -1,5 +1,15 @@
 # Agent Smith
 
+## Nowy wzorzec wyglądu — do akceptacji
+
+`reference-v2.png` przedstawia nową propozycję Smitha z tożsamością filmowej
+postaci granej przez Hugo Weavinga i zielonkawą paletą Matrixa.
+Prompt i sposób generacji: `reference-v2-prompt.md`.
+Ta propozycja nie jest jeszcze podłączona do gry. Dotychczasowy arkusz
+pozostaje w użyciu do zatwierdzenia nowego wzorca i przygotowania animacji.
+
+## Dotychczasowy arkusz v1
+
 Trzecia postać dostępna dla obu graczy w menu wyboru.
 
 - `sprites-v1.png`: 36 póz wygenerowanych wbudowanym ImageGen.
